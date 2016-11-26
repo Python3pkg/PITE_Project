@@ -23,6 +23,7 @@ from ROOT import TFile, gPad, TCanvas, gStyle
 DEBUG = False
 PLOT1D = True
 PLOT2D = True
+PLOT3D = True
 
 # this is the converter manager code
 #---
@@ -52,10 +53,20 @@ if __name__ == '__main__':
        if plot.get_type() == '2DPLOT':
            if PLOT2D:
                gPad.SetLogz();
-	       gPad.SetGridx();
-	       gPad.SetGridy();
+               gPad.SetGridx();
+               gPad.SetGridy();
                plot.get_histo().Draw('COLZ')
            plot.get_histo().Write()
+       if plot.get_type() == '3DPLOT':
+           if PLOT3D:
+               gPad.SetLogz();
+               gPad.SetGridx();
+               gPad.SetGridy();
+               hist = plot.get_histo()
+               for i in range(4):
+                  hist[i].Draw()
+                  raw_input('Close the window and press enter')
+                  hist[i].Write()
 
    file.Close()
 
