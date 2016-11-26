@@ -16,6 +16,7 @@ from commands import getoutput
 from ROOT import TH1F, TH2D, kTRUE, kRed
 from ctypes import *
 from itertools import count
+import numpy as np
 
 unique_cnt = count()
 
@@ -42,6 +43,7 @@ class sf2r_manager(object):
         self.__names = []
         self.__1dplot = '1DPLOT'
         self.__2dplot = '2DPLOT'
+        self.__3dplot = '3DPLOT'
         self.__types = {}
 
         try:
@@ -90,20 +92,29 @@ class sf2r_manager(object):
 
     def ff_type_detector(self):
         print ' --> Checking the content of the fluka files '
-        command_str = 'grep \'X coordinate\' '
+        command_str_2d = 'grep \'X coordinate\' '
+        command_str_3d = 'grep \'R coordinate\' '
         if 0 == len( self.__names ):
             # process just one file    
-            out_str = getoutput( command_str  + self.__path + '/' + self.__name )
+            out_str = getoutput( command_str_2d  + self.__path + '/' + self.__name )
             if 0 == len( out_str ):
-                self.__types[ self.__path + '/' + self.__name ] = self.__1dplot
+                out_str_3d = getoutput( command_str_3d  + self.__path + '/' + self.__name )
+                if 0 == len( out_str_3d ):
+                    self.__types[ self.__path + '/' + self.__name ] = self.__1dplot
+                else:
+                    self.__types[ self.__path + '/' + self.__name ] = self.__3dplot
             else:
                 self.__types[ self.__path + '/' + self.__name ] = self.__2dplot
         else:
             # process many files
             for name in self.__names:
-                out_str = getoutput( command_str  + self.__path + '/' + name )
+                out_str = getoutput( command_str_2d  + self.__path + '/' + name )
                 if 0 == len( out_str ):
-                    self.__types[ self.__path + '/' + name ] = self.__1dplot
+                    out_str_3d = getoutput( command_str_3d  + self.__path + '/' + name )
+                    if 0 == len( out_str_3d ):
+                        self.__types[ self.__path + '/' + name ] = self.__1dplot
+                    else:
+                        self.__types[ self.__path + '/' + name ] = self.__3dplot
                 else:
                     self.__types[ self.__path + '/' + name ] = self.__2dplot
         for file in self.__types.keys():
@@ -166,6 +177,8 @@ class ff_parser_factory(object):
                 self.__parsers.append( ff_parser_1d( f_ptr, file_n ) )
             elif '2DPLOT' == self.__file_types[ file_name ]:
                 self.__parsers.append( ff_parser_2d( f_ptr, file_n ) )
+            elif '3DPLOT' == self.__file_types[ file_name ]:
+                self.__parsers.append( ff_parser_3d( f_ptr, file_n ) )
         return ( self.__parsers )
 
 # parser 1d type
@@ -312,6 +325,89 @@ class ff_parser_2d(object):
     def get_file_name(self):
         return ( self.__file_name )
 
+
+# parser 3d type
+class ff_parser_3d(object):
+    def __init__(self, file_ptr, file_name):
+        self.__header = []
+        self.__data = []
+        self.__f_ptr = file_ptr
+        self.__file_name = file_name
+        self.__header_info = { }
+        self.__histogram = { }
+        self.__ptype = '3DPLOT'
+        self.__detect_data()
+        self.__decode_header()
+        self.__decode_data()
+        print ' -> Decoding/parsing: ', self.__file_name
+
+# now check where the data begins
+    def __detect_data(self):
+        bchars = ['', ' ']
+        raw = self.__f_ptr.read().split('\n')
+        for line in raw:
+            line = line.split(' ')
+            elements = [ ch for ch in line if ch not in bchars ]
+            if len( elements ) > 1:
+                if elements[0][:1].isdigit():
+                    for el in elements:
+                        self.__data.append( el )
+                else:
+                    self.__header.append( elements )
+        #print ' --> header: ', self.__header, ' --> data: ', self.__data
+
+    def __decode_header(self):
+        # these corresond to the header structure, we grab the histo name and the binning
+        histo_name = ( 0, 4 )
+        bins = ( 1, 2, 3, 7 )
+        rran = ( 1, 3, 5 )
+        pran = ( 2, 3, 5 )
+        zran = ( 3, 5 )
+        self.__header_info[ 'H_NAME' ] = self.__header[ histo_name[0] ][ histo_name[1] ]
+        self.__header_info[ 'RBINS' ] = int( self.__header[ bins[0] ][ bins[3] ] )
+        self.__header_info[ 'PBINS' ] = int( self.__header[ bins[1] ][ bins[3] ] )
+        self.__header_info[ 'ZBINS' ] = int( self.__header[ bins[2] ][ bins[3] ] )
+        rl = float( self.__header[ rran[0] ][ rran[1] ] )
+        rh = float( self.__header[ rran[0] ][ rran[2] ] )
+        self.__header_info[ 'RRAN' ] = ( rl, rh )
+        pl = float( self.__header[ pran[0] ][ pran[1] ] )
+        ph = float( self.__header[ pran[0] ][ pran[2] ] )
+        self.__header_info[ 'PRAN' ] = ( pl, ph )
+        zl = float( self.__header[ zran[0] ][ zran[0] ] )
+        zh = float( self.__header[ zran[0] ][ zran[1] ] )
+        self.__header_info[ 'ZRAN' ] = ( zl, zh )
+
+        #print self.__header_info[ 'H_NAME' ], self.__header_info[ 'RBINS' ]
+        #print self.__header_info[ 'PBINS' ], self.__header_info[ 'ZBINS' ]
+
+    def __decode_data(self):
+        # these constants pertain to the location of the data
+        self.__histogram[ 'TYPE' ] = self.__ptype
+        data_points = []
+        error_points = []
+
+        for el in xrange(len(self.__data)/2):
+            data_points.append( float( self.__data[el] ) )
+        for err in xrange(len(self.__data)/2,len(self.__data)):
+            error_points.append( float( self.__data[err] ) )
+            
+        self.__histogram[ 'DATA' ] = data_points
+        self.__histogram[ 'ERRORS' ] = error_points
+        #print len( self.__histogram[ 'DATA' ] )
+
+    def get_header_info(self):
+        return ( self.__header_info )
+
+    def get_histogram_data(self):
+        return ( self.__histogram )
+
+    def get_type(self):
+        return ( self.__ptype )
+
+    def get_file_name(self):
+        return ( self.__file_name )
+
+
 # histo factory
 class histo_plot_factory(object):
     def __init__(self, parsers):
@@ -324,6 +420,8 @@ class histo_plot_factory(object):
                 self.__plots.append( plot_1d( parser ) )
             elif '2DPLOT' == parser.get_type():
                 self.__plots.append( plot_2d( parser ) )
+            elif '3DPLOT' == parser.get_type():
+                self.__plots.append( plot_3d( parser ) )
         return ( self.__plots )
 
 # plot 1d
@@ -432,6 +530,106 @@ class plot_2d(object):
 
     def get_type(self):
         return ( self.__type )
+        
+
+# plot 3d
+class plot_3d(object):
+    def __init__(self, parser):
+        self.__parser = parser
+        self.__histo = None
+        self.__plot_3d()
+        self.__type = '3DPLOT'
+        print ' -> Plotting/writing: ', self.__parser.get_file_name()
+
+    def __plot_3d(self):
+        global unique_cnt
+        uid = next(unique_cnt)
+        header = self.__parser.get_header_info()
+        hdata = self.__parser.get_histogram_data()[ 'DATA' ]
+        name = header[ 'H_NAME' ] + ' ' + str( uid )
+        name = name[1:]
+        nrbins = header[ 'RBINS' ]
+        npbins = header[ 'PBINS' ]
+        nzbins = header[ 'ZBINS' ]
+        rl = header[ 'RRAN' ][0]
+        ru = header[ 'RRAN' ][1]
+        pl = header[ 'PRAN' ][0]
+        pu = header[ 'PRAN' ][1]
+        zl = header[ 'ZRAN' ][0]
+        zu = header[ 'ZRAN' ][1]
+        ## ------   TH2D::TH2D(const char* name, const char* title, int nbinsx, double xlow, double xup, int nbinsy, double ylow, double yup)
+        self.__histo = TH2D(name, name, int( nrbins * npbins ) , float( zl ), float( zu ), int( nrbins * npbins ), float( pl ),float(  pu ))
+        self.__histo.SetXTitle("X [cm]")
+        self.__histo.GetXaxis().CenterTitle(kTRUE)
+        self.__histo.GetXaxis().SetTitleOffset(1.1)
+        self.__histo.GetXaxis().SetTitleSize(0.04)
+        self.__histo.GetXaxis().SetLabelSize(0.03)
+        self.__histo.GetXaxis().SetTickLength(0.02)
+        self.__histo.GetXaxis().SetNdivisions(20510)
+        self.__histo.SetYTitle("Y [cm]")
+        self.__histo.GetYaxis().CenterTitle(kTRUE)
+        self.__histo.GetYaxis().SetTitleOffset(1.2)
+        self.__histo.GetYaxis().SetTitleSize(0.04)
+        self.__histo.GetYaxis().SetLabelSize(0.03)
+        self.__histo.GetYaxis().SetTickLength(0.02)
+        self.__histo.GetYaxis().SetNdivisions(20510)
+        self.__histo.SetLineColor(kRed);
+        #self.__histo.SetMinimum(1e-9);
+        self.__histo.GetZaxis().SetTitle("Z [cm]");
+
+        ResR = ( ru - rl ) / nrbins
+        ResP = ( pu - pl ) / npbins
+        ResZ = ( zu - zl ) / nzbins
+        FirstR = rl + ResR / 2.
+        FirstP = pl + ResP / 2.
+        FirstZ = zl + ResZ / 2.
+        N = nrbins * npbins * nzbins
+        rPos = [ None ] * N
+        pPos = [ None ] * N
+        zPos = [ None ] * N
+        # -> fill the histo now!
+        pos_cnt = 0
+         
+        
+        uid = next(unique_cnt)
+        header = self.__parser.get_header_info()
+        hdata = self.__parser.get_histogram_data()
+        name = header[ 'H_NAME' ] + str( uid )
+        bins = header[ 'RBINS' ]
+        
+        self.__histo = [ None ]* npbins
+        #ddebg = [[],[],[],[] ]
+        #edebg = [ [],[],[],[]]
+        
+        for i in range(npbins):
+            self.__histo[i] = TH1F(name+' phi='+str(FirstP+i*ResP), name+' phi='+str(FirstP+i*ResP), int(nrbins), float(rl), float(ru))
+            
+        for indx, data_point in enumerate( hdata[ 'DATA' ] ):
+            self.__histo[int(indx/100)].SetBinContent( indx%100 + 1, data_point )
+            #ddebg[int(indx/100)].append(data_point)
+            
+        #for indx, error in enumerate( hdata[ 'ERRORS' ] ):
+            #self.__histo[int(indx/100)].SetBinError( indx%100 + 1, error )
+            #edebg[int(indx/100)].append(error)
+
+        #print len(ddebg[0]), len(ddebg[1]), len(ddebg[2]), len(ddebg[3])
+        #print len(edebg[0]), len(edebg[1]), len(edebg[2]), len(edebg[3]),
+
+        min_val = min( hdata[ 'DATA' ] )
+        max_val = max( hdata[ 'DATA' ] )
+        
+        for l in range(npbins):
+            self.__histo[l].SetMarkerStyle( 20 )
+            self.__histo[l].SetMarkerSize( 0.6 )
+
+
+
+    def get_histo(self):
+        return ( self.__histo )
+
+    def get_type(self):
+        return ( self.__type )
+        
 
 # state service
 class state_svc():
