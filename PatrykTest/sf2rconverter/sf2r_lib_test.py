@@ -40,7 +40,7 @@ class ff_parser_factoryTest(unittest.TestCase):
 		parsers3_type = type(parsers3)
 		self.assertEqual(parsers3_type, list)
 		
-		if(type(parsers3_type) == list && len(parsers3)):
+		if(type(parsers3_type) == list and len(parsers3)):
 			self.assertEqual(type(parsers3[0]), type(ff_parser_2d))
 
 class ff_parser_1dTest(unittest.TestCase):
