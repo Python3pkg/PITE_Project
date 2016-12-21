@@ -249,6 +249,9 @@ class ff_parser_1d(object):
     def get_file_name(self):
         return ( self.__file_name )
 
+    def get_parser(self):
+	return ( self.__parser )
+
 # parser 2d type
 class ff_parser_2d(object):
     def __init__(self, file_ptr, file_name):
@@ -325,7 +328,9 @@ class ff_parser_2d(object):
 
     def get_file_name(self):
         return ( self.__file_name )
-
+    
+    def get_parser(self):
+	return ( self.__parser )
 
 # parser 3d type
 class ff_parser_3d(object):
@@ -761,6 +766,9 @@ class plot_3d(object):
 
     def get_histo(self):
         return ( self.__histo )
+
+    def get_parser(self):
+	return ( self.__parser )
 
     def get_type(self):
         return ( self.__type )
