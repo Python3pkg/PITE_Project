@@ -42,11 +42,3 @@ class ff_parser_factoryTest(unittest.TestCase):
 		
 		if(type(parsers3_type) == list and len(parsers3)):
 			self.assertEqual(type(parsers3[0]), type(ff_parser_2d))
-
-class ff_parser_1dTest(unittest.TestCase):
-
-	def setUp(self):
-		self.instance =  ff_parser_1d()
-	
-	def test_init_ff_parser_1d_(self):
-		pass
