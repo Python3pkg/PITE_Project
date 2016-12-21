@@ -3,8 +3,6 @@
 """ 
    --> converter fluka->root->tki using sf2r_lib.py and based on sf2rconverter 
        both written by Tomasz Szumlak and Agnieszka Oblatowska-Mucha
-   --> it is presumed that the file with memory map will always have
-       extension .lis!
 
 """
 #
@@ -20,7 +18,8 @@ from sf2r_lib import sf2r_manager
 from ROOT import TFile, gPad, TCanvas, gStyle, TH2D, TH1F
 from root2tk import plot_3d_2canvas
 
-DEBUG = True
+DEBUG = False
+API = True
 PLOT1D = False
 PLOT2D = True
 PLOT3D = False
@@ -28,9 +27,8 @@ PLOT3D = False
 # this is the root2tk test code
 if __name__ == '__main__':
    # configure and run
-   _MGR = sf2r_manager( DEBUG )
-   _MGR.ff_type_detector()
-   plots = _MGR.run()
+   _MGR = sf2r_manager( DEBUG ,API)
+   plots = _MGR.run_path("./","final_check10k_70.bnn.lis")
    root = Tk.Tk()
    root.wm_title("ROOT TH1F")  
  

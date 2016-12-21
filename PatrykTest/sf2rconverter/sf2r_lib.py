@@ -23,7 +23,7 @@ unique_cnt = count()
 
 class sf2r_manager(object):
     # first grab the path and file name
-    def __init__(self, debug = False):
+    def __init__(self, debug = False, api = False):
         """
 
            __init__() - constructor
@@ -38,24 +38,29 @@ class sf2r_manager(object):
            
         """
 
-        self.__path = None
         self.__debug = debug
-        self.__name = None
         self.__names = []
         self.__1dplot = '1DPLOT'
         self.__2dplot = '2DPLOT'
         self.__3dplot = '3DPLOT'
         self.__types = {}
 
+	if api: #prevents wiping out text interface
+	   self.__path = "None"
+	   self.__name = "None"
+	else:
+	   self.__path = None
+	   self.__name = None
+
         try:
             opts, args = getopt.getopt( sys.argv[1:], 'hp:d:n:', ['help', 'path=', 'debug=', 'name='])
         except getopt.GetoptError, err:
             print str(err)
             self.__help()
-            sys.exit( 2 )
         if len( opts ) == 0:
             self.__help()
-            sys.exit( 2 )
+	    if not api:
+               sys.exit( 2 )
         for opt, arg in opts:
             if opt in ( '-h', '--help' ):
                 self.__help()
@@ -90,7 +95,7 @@ class sf2r_manager(object):
                     print name
         else:
             print ' --> Will process: ', self.__name
-
+   
     def ff_type_detector(self):
         print ' --> Checking the content of the fluka files '
         command_str_2d = 'grep \'X coordinate\' '
@@ -129,6 +134,13 @@ class sf2r_manager(object):
         parsers = self.__engine_run()
         hfactory = histo_plot_factory( parsers )
         return ( hfactory.plot_creator() )
+
+    def run_path(self, path, name):
+	#replace path and run normally
+	self.__path = path
+	self.__name = name
+	self.ff_type_detector()
+        return self.run()
 
     def __engine_run(self):
         parsers = self.__create_parsers()
