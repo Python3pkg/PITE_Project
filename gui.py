@@ -1,5 +1,7 @@
 from Tkinter import *
 import tkFileDialog
+from PatrykTest.sf2rconverter.root2tk import plot_3d_2canvas
+from PatrykTest.sf2rconverter.sf2r_lib import sf2r_manager
 
 from os import *
 
@@ -131,8 +133,20 @@ class GUI(Frame):
       #FUNCTOINS
     def LOAD(self): # na razie zachowuje tylko nazwe pliku
       if self.lb1.curselection():
-
+        MGR = sf2r_manager( False  , True) #DEBUG = False API = True
       	self.file=str( self.filelist  [int(self.lb1.curselection()[0])] )
+        plots = MGR.run_path(self.folder,self.file) # tu wywala TH1F'y
+	
+        canvas = []
+        for plot in plots:
+           canvas.append(plot_3d_2canvas(plot,self.f1)) #tutaj funkcja konwertuje do CanvasTkAgg (czy jakos tak)
+ 
+        for cnv in canvas[0]: # tu sie na razie dzieje magia - na wypadek, gdyby bylo wiecej canvasow
+        # a tk.DrawingAre
+           cnv.show() #tutaj wrzucam na chama canvasy do GUI - bedziesz wiedzial co z tym zrobic
+           cnv.get_tk_widget().pack()
+
+
       	self.STATUS("FILE " +self.file+" LOADED") 
       
       else:
