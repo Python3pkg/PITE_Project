@@ -64,6 +64,7 @@ class sf2r_manager(object):
         for opt, arg in opts:
             if opt in ( '-h', '--help' ):
                 self.__help()
+		sys.exit( 2 )
             elif opt in ( '-p', '--path' ):
                 self.__path = arg
                 if self.__path and os.path.exists( self.__path ):
