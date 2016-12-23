@@ -1,6 +1,8 @@
 # PITE_Project
 Fancy GUI for Fluka to Root Converter
+
 Team leader: Patryk Pasterny
+
 Team members : Marcin Pajka, Kamil Piastowicz, Krzysztof Romanowski
 
 To use gui.py it have to be into one file with sf2rconverter then you just have to type down:
