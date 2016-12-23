@@ -11,6 +11,7 @@ and select file inside the GUI to see three histograms which we are getting now 
 and the superposiotion of them). It is of course just a basic part of our project we are waiting for feedback.
 
 Businessplan:
+
 1) Build basic GUI                                                                            DONE
 2) Change sf2r_lib to make a tree which has branches labeled like detectors                   DONE
 3) Write functions which change root canvas into tk canvas                                    DONE
