@@ -17,7 +17,7 @@ Businessplan:
 3) Write functions which change root canvas into tk canvas                                    DONE
 4) Write tests for 1DPLOT part of sf2r_lib.py                                                 DONE
 5) Run basic GUI( builded up thanks to points 1-4.)                                           DONE
-5) Build a tree in our GUI(see point 2.)                                                      IN PROGRESS
-6) New features of GUI                                                                        IN PROGRESS
+6) Build a tree in our GUI(see point 2.)                                                      IN PROGRESS
+7) New features of GUI                                                                        IN PROGRESS
 
 Of course you can still open sf2rconverter from terminal if you only want.
