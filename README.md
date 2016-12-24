@@ -26,7 +26,9 @@ Businessplan:
 
 6) Build a tree in our GUI(see point 2.)                                                      IN PROGRESS
 
-7) New features of GUI                                                                        IN PROGRESS
+7) Write tests for 2DPLOT part of sf2r_lib.py                                                 IN PROGRESS
+
+8) New features and functions of gui.py                                                       IN PROGRESS
 
 
 Of course you can still open sf2rconverter from terminal if you only want.
