@@ -2,7 +2,7 @@
 #
 """ 
    --> converter fluka->root->tki using sf2r_lib.py and based on sf2rconverter 
-       both written by Tomasz Szumlak, Agnieszka Oblatowska-Mucha and Patryk Pasterny
+       both written by Tomasz Szumlak and Agnieszka Oblatowska-Mucha
 
 """
 #

@@ -11,7 +11,6 @@
 #
 #  @Agnieszka Oblakowska-Mucha
 #  @Tomasz Szumlak
-#  @Patryk Pasterny
 #
 ###--------------------------------------------------------------------
 
