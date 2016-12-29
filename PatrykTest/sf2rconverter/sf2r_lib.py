@@ -649,12 +649,10 @@ class plot_3d(object):
         print ' -> Plotting/writing: ', self.__parser.get_file_name()
 
     def __plot_3d(self):
-        global unique_cnt
         definite_integral=0.
-        uid = next(unique_cnt)
         header = self.__parser.get_header_info()
-        hdata = self.__parser.get_histogram_data()[ 'DATA' ]
-        name = header[ 'H_NAME' ] + ' ' + str( uid )
+        hdata = self.__parser.get_histogram_data()
+        name = header[ 'H_NAME' ]
         name = name[1:]
         nrbins = header[ 'RBINS' ]
 	rzeros = header[ 'RZEROS' ]
@@ -666,11 +664,7 @@ class plot_3d(object):
         pu = header[ 'PRAN' ][1]
         zl = header[ 'ZRAN' ][0]
         zu = header[ 'ZRAN' ][1]
-	n_of_histo=len(hdata)/nrbins
-
-	#identify the examining detector
-	if nzbins==1:
-		self.detector_pos=zu
+	n_of_histo=len(hdata['DATA'])/nrbins
 
         ## ------   TH2D::TH2D(const char* name, const char* title, int nbinsx, double xlow, double xup, int nbinsy, double ylow, double yup)
         self.__histo = TH2D(name, name, int( nrbins * npbins ) , float( zl ), float( zu ), int( nrbins * npbins ), float( pl ),float(  pu ))
@@ -704,16 +698,10 @@ class plot_3d(object):
         zPos = [ None ] * N
         # -> fill the histo now!
         pos_cnt = 0
-         
-        
-        uid = next(unique_cnt)
-        header = self.__parser.get_header_info()
-        hdata = self.__parser.get_histogram_data()
-        name = header[ 'H_NAME' ] + str( uid )
+       
         bins = header[ 'RBINS' ]
 	for sensors in self.__parser.VELO_MAP:
 	    if sensors["zlpos"]==zl and sensors["zrpos"]==zu:
-			print "TRAFLES"
 			present_sensor=sensors
 	upper_or_lower=present_sensor.get("u_or_l")
         if npbins==2:
@@ -736,7 +724,7 @@ class plot_3d(object):
             				self.__histo[it] = TH1F(name+' phi='+str(FirstP+i*ResP), name+' phi='+str(FirstP+i*ResP), int(nrbins), float(0), float(ru))
 					it+=1
 			#SUPERPOSITION COMING RIGHT NOW!!!
-			self.__histo[n_of_histo-1] = TH1F(name+' Superposition', name+' Superposition', int(nrbins), float(0), float(ru))
+			self.__histo[n_of_histo-1] = TH1F(name, name, int(nrbins), float(0), float(ru))
 			#AND ENDS RIGHT HERE
 		elif upper_or_lower=='u':
 			it=0
@@ -745,7 +733,7 @@ class plot_3d(object):
             				self.__histo[it] = TH1F(name+' phi='+str(FirstP+i*ResP), name+' phi='+str(FirstP+i*ResP), int(nrbins), float(0), float(ru))
 					it+=1
 			#SUPERPOSITION COMING RIGHT NOW!!!
-			self.__histo[n_of_histo-1] = TH1F(name+' Superposition', name+' Superposition', int(nrbins), float(0), float(ru))
+			self.__histo[n_of_histo-1] = TH1F(name, name, int(nrbins), float(0), float(ru))
 			#AND ENDS RIGHT HERE
 		else: 
 			print "Can't be"
