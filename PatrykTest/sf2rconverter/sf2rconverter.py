@@ -63,7 +63,7 @@ if __name__ == '__main__':
                gPad.SetGridx();
                gPad.SetGridy();
                hist = plot.get_histo()
-               for i in range(4):
+               for i in xrange(len(hist)):
                   hist[i].Draw()
                   raw_input('Close the window and press enter')
                   hist[i].Write()
