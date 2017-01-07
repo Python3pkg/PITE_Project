@@ -417,10 +417,7 @@ class ff_parser_3d(object):
         self.__header_info[ 'PBINS' ] = int( self.__header[ bins[1] ][ bins[3] ] )
         self.__header_info[ 'ZBINS' ] = int( self.__header[ bins[2] ][ bins[3] ] )
 	#histo should start from 0 and bins from 0 to 0.6 are blank. if necessary should be done for all variables
-	r_width=float((rh-rl)/nrbins)
-	num_of_zeros_in_r=int(rl/r_width)+1
-        self.__header_info[ 'RBINS' ] = nrbins+num_of_zeros_in_r
-	self.__header_info[ 'RZEROS' ] = num_of_zeros_in_r
+        self.__header_info[ 'RBINS' ] = nrbins
 
         #print self.__header_info[ 'H_NAME' ], self.__header_info[ 'RBINS' ]
         #print self.__header_info[ 'PBINS' ], self.__header_info[ 'ZBINS' ]
@@ -430,7 +427,6 @@ class ff_parser_3d(object):
         self.__histogram[ 'TYPE' ] = self.__ptype
         data_points = []
         error_points = []
-	rzeros=self.__header_info[ 'RZEROS' ]
 	nrbins=self.__header_info[ 'RBINS' ]
 	npbins=self.__header_info[ 'PBINS' ]
 	pl = self.__header_info[ 'PRAN' ][0]
@@ -438,20 +434,16 @@ class ff_parser_3d(object):
         zl = self.__header_info[ 'ZRAN' ][0]
         zu = self.__header_info[ 'ZRAN' ][1]
 	present_sensor={}
-	#ZEROS IN R ARE ADDED HERE
-        for el in xrange(len(self.__data)/2):
-	    if el%(nrbins-rzeros)==0:
-		data_points.extend(rzeros*[0])
-            data_points.append( float( self.__data[el] ) )
-        for err in xrange(len(self.__data)/2,len(self.__data)):
-	    if err%(nrbins-rzeros)==0:
-		error_points.extend(rzeros*[0])
-            error_points.append( float( self.__data[err] ) )
 #SO HERE I MAKE THE SUPERPOSITION FOR EVERY BINING OF PHI 
 	for sensors in self.VELO_MAP:
 		if sensors["zlpos"]==zl and sensors["zrpos"]==zu:
 			present_sensor=sensors
 	
+	for x in xrange(len(self.__data)/2):
+		data_points.append(float(self.__data[x]))
+	for x in xrange(len(self.__data)/2,len(self.__data)):
+		error_points.append(float(self.__data[x]))
+
 	upper_or_lower=present_sensor.get("u_or_l")
 	if upper_or_lower=='u':
 		ResP=(ph-pl)/npbins
@@ -463,17 +455,27 @@ class ff_parser_3d(object):
             		for i in xrange(npbins):
 				if FirstP + ResP*i<FirstQ:
 					data_points.extend(data_points[(nrbins*i):(nrbins*(i+1))])
+					error_points.extend(error_points[(nrbins*i):(nrbins*(i+1))])
 					del data_points[(nrbins*i):(nrbins*(i+1))]
+					del error_points[(nrbins*i):(nrbins*(i+1))]
 				if FirstP + ResP*i>LastQ:
 					del data_points[(nrbins*(i-1)):len(data_points)]
+					del error_points[(nrbins*(i-1)):len(error_points)]
+
 			number_of_graphs=len(data_points)/nrbins
 			for x in xrange(nrbins):
 				superpos_el=0
+				superpos_err=0
 				for i in xrange(number_of_graphs):
 					superpos_el+=data_points[(nrbins*i)+x]
+					superpos_err+=error_points[(nrbins*i)+x]
+
 				data_points.append(superpos_el/number_of_graphs)
+				error_points.append(superpos_err/number_of_graphs)
+
 		elif npbins==2:
 			del data_points[0:nrbins]
+			del error_points[0:nrbins]
 	elif upper_or_lower=='l':
         	if npbins>=3:
 			ResP=(ph-pl)/npbins
@@ -487,17 +489,25 @@ class ff_parser_3d(object):
 					it+=1
 					if (FirstP+ResP*i)>LastQ:
 						del data_points[nrbins*(i-it+1):(nrbins*i)]
+						del error_points[nrbins*(i-it+1):(nrbins*i)]
+
 			number_of_graphs=len(data_points)/nrbins
 			for x in xrange(nrbins):
 				superpos_el=0
+				superpos_err=0
 				for i in xrange(number_of_graphs):
 					superpos_el+=data_points[(nrbins*i)+x]
+					superpos_err+=error_points[(nrbins*i)+x]
+
 				data_points.append(superpos_el/number_of_graphs)
+				error_points.append(superpos_err/number_of_graphs)
+
 		elif npbins==2:
 			del data_points[nrbins:len(data_points)]
+			del error_points[nrbins:len(error_points)]
 	else:
 		print "Can't be."
-	      
+	     
         self.__histogram[ 'DATA' ] = data_points
         self.__histogram[ 'ERRORS' ] = error_points
         #print len( self.__histogram[ 'DATA' ] )
@@ -655,7 +665,6 @@ class plot_3d(object):
         name = header[ 'H_NAME' ]
         name = name[1:]
         nrbins = header[ 'RBINS' ]
-	rzeros = header[ 'RZEROS' ]
         npbins = header[ 'PBINS' ]
         nzbins = header[ 'ZBINS' ]
         rl = header[ 'RRAN' ][0]
@@ -697,7 +706,6 @@ class plot_3d(object):
         pPos = [ None ] * N
         zPos = [ None ] * N
         # -> fill the histo now!
-        pos_cnt = 0
        
         bins = header[ 'RBINS' ]
 	for sensors in self.__parser.VELO_MAP:
@@ -709,9 +717,9 @@ class plot_3d(object):
         #ddebg = [[],[],[],[] ]
         #edebg = [ [],[],[],[]]
 		if upper_or_lower=='l':
-			self.__histo[0] = TH1F(name+' phi='+str(), name+' phi='+str(pl), int(nrbins), float(0), float(ru))
+			self.__histo[0] = TH1F(name+' phi='+str(), name+' phi='+str(pl), int(nrbins), float(rl), float(ru))
 		elif upper_or_lower=='u':
-            		self.__histo[0] = TH1F(name+' phi='+str(), name+' phi='+str(ResP), int(nrbins), float(0), float(ru))
+            		self.__histo[0] = TH1F(name+' phi='+str(), name+' phi='+str(ResP), int(nrbins), float(rl), float(ru))
 		else:
 			print "Can't be."
 	elif npbins>2:
@@ -721,32 +729,36 @@ class plot_3d(object):
 			it=0
 			for i in range(npbins):
 				if FirstP+i*ResP<pl+QuarterP or FirstP+i*ResP>pu-QuarterP:
-            				self.__histo[it] = TH1F(name+' phi='+str(FirstP+i*ResP), name+' phi='+str(FirstP+i*ResP), int(nrbins), float(0), float(ru))
+            				self.__histo[it] = TH1F(name+'_part_'+str(i), name+'_part_'+str(i), int(nrbins), float(rl), float(ru))
 					it+=1
 			#SUPERPOSITION COMING RIGHT NOW!!!
-			self.__histo[n_of_histo-1] = TH1F(name, name, int(nrbins), float(0), float(ru))
+			self.__histo[n_of_histo-1] = TH1F(name, name, int(nrbins), float(rl), float(ru))
 			#AND ENDS RIGHT HERE
 		elif upper_or_lower=='u':
 			it=0
 			for i in range(npbins):
 				if FirstP+i*ResP>pl+QuarterP and FirstP+i*ResP<pu-QuarterP:
-            				self.__histo[it] = TH1F(name+' phi='+str(FirstP+i*ResP), name+' phi='+str(FirstP+i*ResP), int(nrbins), float(0), float(ru))
+            				self.__histo[it] = TH1F(name+'_part_'+str(i), name+'_part_'+str(i), int(nrbins), float(rl), float(ru))
 					it+=1
 			#SUPERPOSITION COMING RIGHT NOW!!!
-			self.__histo[n_of_histo-1] = TH1F(name, name, int(nrbins), float(0), float(ru))
+			self.__histo[n_of_histo-1] = TH1F(name, name, int(nrbins), float(rl), float(ru))
 			#AND ENDS RIGHT HERE
 		else: 
 			print "Can't be"
 
          
         for indx, data_point in enumerate( hdata[ 'DATA' ] ):
-            self.__histo[int(indx/nrbins)].SetBinContent( indx%nrbins, data_point )
-            if indx%nrbins==0 and indx!=0:
+            self.__histo[int(indx/nrbins)].SetBinContent( indx%nrbins+1, data_point )
+	    if indx%nrbins==0 and indx!=0:
                 print "Definite integral for %d graph = %.4f" %(int(indx/nrbins),definite_integral)
                 definite_integral=data_point
             else:
                 definite_integral+=data_point
-        print "Definite integral for 5 graph = %.4f" %definite_integral
+	for indx, error_point in enumerate( hdata[ 'ERRORS' ] ) :
+	    error_point*=self.__histo[int(indx/nrbins)].GetBinContent(indx%nrbins+1)*0.01
+	    self.__histo[int(indx/nrbins)].SetBinError( indx%nrbins+1, error_point )
+            
+        print "Definite integral for superpos graph = %.4f" %definite_integral
             #ddebg[int(indx/100)].append(data_point)
             
         #for indx, error in enumerate( hdata[ 'ERRORS' ] ):
@@ -759,7 +771,7 @@ class plot_3d(object):
         min_val = min( hdata[ 'DATA' ] )
         max_val = max( hdata[ 'DATA' ] )
         
-        for l in range(n_of_histo):
+        for l in xrange(n_of_histo):
             self.__histo[l].SetMarkerStyle( 20 )
             self.__histo[l].SetMarkerSize( 0.6 )
 

@@ -17,7 +17,7 @@
 # import section
 import os, sys, getopt
 from commands import getoutput
-from sf2r_lib import sf2r_manager
+from sf2r_lib_backup_part2 import sf2r_manager
 from ROOT import TFile, gPad, TCanvas, gStyle
 
 DEBUG = False

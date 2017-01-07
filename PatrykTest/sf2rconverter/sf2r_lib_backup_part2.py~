@@ -635,7 +635,7 @@ class plot_3d(object):
         print "Definite integral for 5 graph = %.4f" %definite_integral
             #ddebg[int(indx/100)].append(data_point)
         for indx, error in enumerate( hdata[ 'ERRORS' ] ):
-	    error*=self.__histo[int(indx/nrbins)].GetBinContent(indx%nrbins+1)*0.01/2
+	    error*=self.__histo[int(indx/nrbins)].GetBinContent(indx%nrbins+1)*0.01
             self.__histo[int(indx/nrbins)].SetBinError( indx%nrbins+1, error )
             #edebg[int(indx/100)].append(error)
 
