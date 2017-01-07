@@ -755,7 +755,7 @@ class plot_3d(object):
             else:
                 definite_integral+=data_point
 	for indx, error_point in enumerate( hdata[ 'ERRORS' ] ) :
-	    error_point*=self.__histo[int(indx/nrbins)].GetBinContent(indx%nrbins+1)*0.01
+	    error_point*=self.__histo[int(indx/nrbins)].GetBinContent(indx%nrbins+1)*0.01/2
 	    self.__histo[int(indx/nrbins)].SetBinError( indx%nrbins+1, error_point )
             
         print "Definite integral for superpos graph = %.4f" %definite_integral
