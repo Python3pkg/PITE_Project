@@ -383,7 +383,6 @@ class ff_parser_3d(object):
     def __decode_data(self):
         # these constants pertain to the location of the data
         self.__histogram[ 'TYPE' ] = self.__ptype
-	nrbins = self.__header_info[ 'RBINS' ]
         data_points = []
         error_points = []
         for el in xrange(len(self.__data)/2):
@@ -393,15 +392,16 @@ class ff_parser_3d(object):
 #SO HERE I MAKE THE SUPERPOSITION OF 2 AND 3 PART OF GRAPH
 #Commented for part 1 and 4 with !!! at the begining
 #What should we do with x%2==1 bins of phi???
-	print len(data_points)
         if self.__header_info[ 'PBINS' ]>3:
-            for x in xrange(nrbins):
-                superpos_el=float(data_points[x]+data_points[nrbins+x]+data_points[2*nrbins+x]+data_points[3*nrbins+x])/4
-		data_points.append(superpos_el)
-	    for x in xrange(nrbins):
-		superpos_err=float(error_points[x]+error_points[nrbins+x]+error_points[2*nrbins+x]+error_points[3*nrbins+x])/4
+            fine_data_indx=len(data_points)/4
+            #!!!second_part_of_fine_data=len(data_points)-fine_data_indx
+            #!!!for x in range(fine_data_indx):
+                #!!!superpos_el=(float(data_points[x]+data_points[second_part_of_fine_data+x])/2)
+            centre_of_fine_data=len(data_points)-(2*fine_data_indx)
+            for x in xrange(fine_data_indx,centre_of_fine_data):
+                superpos_el=float(data_points[x]+data_points[centre_of_fine_data+x%fine_data_indx])/2
 		#print superpos_el
-                error_points.append(superpos_err)
+                data_points.append(superpos_el)
 #FOR ERRORS SHOULD BE DONE. FANCIER THAN AVERAGE???        
         self.__histogram[ 'DATA' ] = data_points
         self.__histogram[ 'ERRORS' ] = error_points
@@ -615,18 +615,12 @@ class plot_3d(object):
         #edebg = [ [],[],[],[]]
         
         for i in range(npbins):
-            self.__histo[i] = TH1F(name+' phi='+str(FirstP+i*ResP), name+' phi='+str(FirstP+i*ResP), int(nrbins), float(0), float(ru))
+            self.__histo[i] = TH1F(name+' phi='+str(FirstP+i*ResP), name+' phi='+str(FirstP+i*ResP), int(nrbins), float(rl), float(ru))
 #SUPERPOSITION COMING RIGHT NOW!!!
-        self.__histo[npbins] = TH1F(name+' Superposition', name+' Superposition', int(nrbins), float(0), float(ru))
-#AND ENDS RIGHT HERE      
-	print hdata['DATA'][0]
-	print hdata['DATA'][78]
-	print hdata['DATA'][156]
-	print hdata['DATA'][234]
-	print hdata['DATA'][0]+hdata['DATA'][78]+hdata['DATA'][156]+hdata['DATA'][234]
-	print hdata[ 'DATA' ][312]      
+        self.__histo[npbins] = TH1F(name+' Superposition', name+' Superposition', int(nrbins), float(rl), float(ru))
+#AND ENDS RIGHT HERE            
         for indx, data_point in enumerate( hdata[ 'DATA' ] ):
-            self.__histo[int(indx/nrbins)].SetBinContent( indx%nrbins+1, data_point )
+            self.__histo[int(indx/nrbins)].SetBinContent( indx%nrbins +1, data_point )
             if indx%nrbins==0 and indx!=0:
                 print "Definite integral for %d graph = %.4f" %(int(indx/nrbins),definite_integral)
                 definite_integral=data_point
@@ -634,9 +628,9 @@ class plot_3d(object):
                 definite_integral+=data_point
         print "Definite integral for 5 graph = %.4f" %definite_integral
             #ddebg[int(indx/100)].append(data_point)
-        for indx, error in enumerate( hdata[ 'ERRORS' ] ):
-	    error*=self.__histo[int(indx/nrbins)].GetBinContent(indx%nrbins+1)*0.01/2
-            self.__histo[int(indx/nrbins)].SetBinError( indx%nrbins+1, error )
+            
+        #for indx, error in enumerate( hdata[ 'ERRORS' ] ):
+            #self.__histo[int(indx/100)].SetBinError( indx%100 + 1, error )
             #edebg[int(indx/100)].append(error)
 
         #print len(ddebg[0]), len(ddebg[1]), len(ddebg[2]), len(ddebg[3])

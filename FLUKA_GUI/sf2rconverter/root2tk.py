@@ -30,7 +30,7 @@ def plot_1d_2canvas(plot,tkroot):
 	 values_x = [histo.GetBinContent(i) for i in range(1, xaxis.GetNbins()+1)]
 	 header = plot.get_parser().get_header_info()
 	 bins = header['BINS']
-	 x = [float(i)/rbins*7 for i in range(0,111)]	
+	 x = [float(i)/rbins*7 for i in range(0,len(values_x))]	
 	 subplot.plot(x, values_x)
          subplot.text(3,0.4,histo.GetName())
 	 canvases.append(FigureCanvasTkAgg(figure,master=tkroot))
@@ -52,8 +52,8 @@ def plot_2d_2canvas(plot,tkroot):
 	 header = plot.get_parser().get_header_info()
 	 ybins = header['YBINS']
 	 zbins = header['ZBINS']
-	 xy = [float(i)/ybins*7 for i in range(0,111)]
-	 xz = [float(i)/zbins*7 for i in range(0,111)]
+	 xy = [float(i)/ybins*7 for i in range(0,len(values_y))]
+	 xz = [float(i)/zbins*7 for i in range(0,len(values_z))]
 	 subplot.plot(x,values_y)
 	 subplot.plot(x,values_z)
          subplot.text(3,0.4,histo.GetName())
@@ -73,7 +73,7 @@ def plot_3d_2canvas(plot,tkroot):
 	 values_x = [histo.GetBinContent(i) for i in range(1, xaxis.GetNbins()+1)]
 	 header = plot.get_parser().get_header_info()
 	 rbins = header['RBINS']
-	 x = [float(i)/rbins*7 for i in range(0,111)]
+	 x = [float(i)/rbins*7 for i in range(0,len(values_x))]
 	 subplot.plot(x,values_x)
          subplot.text(3,0.4,histo.GetName())
 	 canvases.append(FigureCanvasTkAgg(figure,master=tkroot))

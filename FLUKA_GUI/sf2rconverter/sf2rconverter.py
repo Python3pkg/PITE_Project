@@ -11,7 +11,6 @@
 #
 #  @Agnieszka Oblakowska-Mucha
 #  @Tomasz Szumlak
-#  @Patryk Pasterny
 #
 ###--------------------------------------------------------------------
 
@@ -65,7 +64,7 @@ if __name__ == '__main__':
                gPad.SetGridy();
                hist = plot.get_histo()
                for i in xrange(len(hist)):
-                  hist[i].Draw("COLZ")
+                  hist[i].Draw()
                   raw_input('Close the window and press enter')
                   hist[i].Write()
 
