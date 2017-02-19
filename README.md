@@ -24,11 +24,33 @@ Businessplan:
 
 5) Run basic GUI( builded up thanks to points 1-4.)                                           DONE
 
-6) Build a tree in our GUI(see point 2.)                                                      IN PROGRESS
+6) Build a tree in our GUI(see point 2.)                                                      DONE
 
-7) Write tests for 2DPLOT part of sf2r_lib.py                                                 IN PROGRESS
+7) Free access                                                                                DONE
 
-8) New features and functions of gui.py                                                       IN PROGRESS
+8) HELP button                                                                                DONE
+
+9) Tree is always open on the left side of the GUI                                            DONE
+
+10) Tree background is white                                                                  DONE
+
+11) Tree includes only convertable files                                                      DONE
+
+12) Layouts for different amount of charts                                                    IN PROGRESS
+
+13) QUIT should be moved to MENU BAR                                                          DONE
+
+14) Informations what is happening in the GUI in present time                                 DONE
+
+15) Choose by one mouse button click                                                          IN PROGRESS
+
+16) Data should be hidden in TESTS/DATA                                                       DONE
+
+17) Instalation package                                                                       IN PROGRESS
+
+18) NEW NAME AND LOGO?                                                                        IN PROGRESS
+
+19) MANUAL for customer                                                                       IN PROGRESS
 
 
 Of course you can still open sf2rconverter from terminal if you only want.
