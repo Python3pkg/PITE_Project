@@ -8,8 +8,7 @@ Team members : Marcin Pajka, Kamil Piastowicz, Krzysztof Romanowski
 
 To use gui.py it have to be into one file with sf2rconverter then you just have to type down:
 python gui.py
-and select file inside the GUI to see three histograms which we are getting now from sf2rconverter(two histograms for different angles 
-and the superposiotion of them). It is of course just a basic part of our project we are waiting for feedback.
+and select file inside the GUI to see all histograms which we are getting now from sf2rconverter(histograms for all angles and superposition of them). 
 
 
 Businessplan:
