@@ -35,7 +35,7 @@ Businessplan:
 
 11) Tree includes only convertable files                                                      DONE
 
-12) Layouts for different amount of charts                                                    IN PROGRESS
+12) Layouts for different amount of charts                                                    DONE
 
 13) QUIT should be moved to MENU BAR                                                          DONE
 
@@ -45,11 +45,11 @@ Businessplan:
 
 16) Data should be hidden in TESTS/DATA                                                       DONE
 
-17) Instalation package                                                                       IN PROGRESS
+17) Instalation package                                                                       DONE
 
-18) NEW NAME AND LOGO?                                                                        IN PROGRESS
+18) NEW NAME AND LOGO? ----FLOOT!                                                             DONE
 
-19) MANUAL for customer                                                                       IN PROGRESS
+19) MANUAL for customer                                                                       DONE
 
 
 Of course you can still open sf2rconverter from terminal if you only want.
