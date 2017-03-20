@@ -38,7 +38,7 @@ class GUI(Frame):
         
         self.win = parent
         self.win.geometry("1440x730")
-        self.win.title("FLUNK - filmsy GUI for FLUKA to ROOT converter")
+        self.win.title("FLOOT - GUI for FLUKA to ROOT converter")
         #MENU
         self.menu=Menu(self.win)
         self.menu.add_command(label="CONVERT",command=self.CONVERT)
@@ -49,32 +49,19 @@ class GUI(Frame):
         self.l1=Label(self.win,text="START")
 
         # TREES
-        self.tree = tkt.Tree(self.win,'./Test/Data','FLUKA_DIR',get_contents_callback=get_contents);      
- 
+        self.tree = tkt.Tree(self.win,'./Test/Data','FLUKA_DIR',get_contents_callback=get_contents)
+
+	self.canv_logo = Canvas(self.win,width=600,height=300)
         ############################################
-
-
-    
-        #PACKING
-#	for i in self.TREE:
-#           i.pack(side=LEFT)
-#	for i in self.BUTTONS:
-#           i.pack(side=LEFT)
-#
-#        self.sb1.pack(side=LEFT,fill=Y       
-#        self.lb1.pack(side=LEFT)
-#        self.f1_B.pack(side=TOP)
-#        self.f1_L.pack(side=TOP)
-#         
-#        self.f2_B.grid(row=0,column=0)
-#        self.l1.grid(row=1,column=50,columnspan=10)
-#        self.tree.grid(row=1,column=1,sticky=NW,columnspan=30,rowspan=50,ipady=120)  
-#                
-#        self.EXIT.grid(row=75,column=95,sticky=NE) 
-
 	self.grid()
-	self.tree.grid(column = 0, row = 1, rowspan = 5, sticky=NE+SW)
 	self.l1.grid(column=0,row=0, sticky=NE+SW)
+	self.tree.grid(column = 0, row = 1, rowspan = 5, sticky=NE+SW)
+	self.canv_logo.grid(column=2,row=3)
+	self.logo = PhotoImage(file="floot.gif")
+	self.canv_logo.image = self.logo
+ 
+
+	self.canv_logo.create_image(290,169,image=self.logo)
         #Configuration
         self.win.configure(menu=self.menu)     
         self.tree.configure(background='#EEEEEE', relief='sunken',borderwidth=3)
@@ -87,8 +74,8 @@ class GUI(Frame):
         self.win.rowconfigure(4, minsize=10)
  
         self.win.columnconfigure(0,minsize=200)
-        self.win.columnconfigure(1,minsize =300)
-	self.win.columnconfigure(2,minsize=300)
+        self.win.columnconfigure(1,minsize =500)
+	self.win.columnconfigure(2,minsize=500)
       
 	self.tree.focus_set()
      ##############################################
@@ -97,7 +84,6 @@ class GUI(Frame):
 
        self.file = self.tree.cursor_node().get_label()
        if(self.file[-4:] == ".lis"):
-        print self.file
         self.STATUS("PLOTTING")
         MGR = sf2r_manager( False  , True) #DEBUG = False API = True
         plots = MGR.run_path(self.folder,self.file) # tu wywala TH1F'y
@@ -117,36 +103,35 @@ class GUI(Frame):
         if plot == False:
             self.STATUS("FILE " +self.file+" ONLY CONVERTED") 
             return  
-      
+	
         self.canvas.append(plot_3d_2canvas(plots[0],self.win))
+	self.number=len(self.canvas[0])
 
         self.canvas[0][0].get_tk_widget().grid(row=1,column=1)
         self.TOOLBAR.append(NavigationToolbar2TkAgg(self.canvas[0][0],self.win))
         self.TOOLBAR[0].grid(row=2,column=1)
-  
-        self.canvas[0][1].get_tk_widget().grid(row=3,column=1)
-        self.TOOLBAR.append(NavigationToolbar2TkAgg(self.canvas[0][1],self.win))
-        self.TOOLBAR[1].grid(row=4,column=1)
-       
-        self.canvas[0][2].get_tk_widget().grid(row=1,column=2)
-        self.TOOLBAR.append(NavigationToolbar2TkAgg(self.canvas[0][2],self.win))
-        self.TOOLBAR[2].grid(row=2,column=2)   
-         
+  	if(len(self.canvas[0])>1):
+         self.canvas[0][1].get_tk_widget().grid(row=3,column=1)
+         self.TOOLBAR.append(NavigationToolbar2TkAgg(self.canvas[0][1],self.win))
+         self.TOOLBAR[1].grid(row=4,column=1)
+        if(len(self.canvas[0])>2):
+         self.canvas[0][2].get_tk_widget().grid(row=1,column=2)
+         self.TOOLBAR.append(NavigationToolbar2TkAgg(self.canvas[0][2],self.win))
+         self.TOOLBAR[2].grid(row=2,column=2)   
+        self.tree.focus_set()
        self.STATUS("FILE " +self.file+" CONVERTED AND PLOTTED") 
        self.tree.focus_set()
-       #else:
-     #	 self.STATUS("FILE NOT SELECTED")	
 
     def FOLDER(self):
       self.tree.delete(0,END)
-      tmp=self.folder
-      self.folder=tkFileDialog.askdirectory()
-      if self.folder !="":
-	self.tree = tkt.Tree(self,self.folder,self.folder,get_contents_callback=get_contents)
-	self.tree.grid(column = 0, row = 1, rowspan = 5, sticky=NE+SW)
-      	self.STATUS("NEW DIRECTORY SELECTED")
-      else:
-        self.folder = tmp	
+      folder=tkFileDialog.askdirectory()
+      if(folder!='' and isinstance(folder,str)):
+       self.folder=folder
+       self.tree = tkt.Tree(self.win,self.folder,"FLUKA_DIR",get_contents_callback=get_contents)
+       self.tree.configure(background='#EEEEEE', relief='sunken',borderwidth=3)
+       self.tree.grid(column = 0, row = 1, rowspan = 5, sticky=NE+SW)
+       self.tree.root.expand()
+       self.STATUS("NEW DIRECTORY SELECTED")
 
     def STATUS(self,string):
         self.l1.configure(text=string)
