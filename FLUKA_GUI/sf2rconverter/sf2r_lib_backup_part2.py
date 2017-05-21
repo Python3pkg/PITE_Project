@@ -12,7 +12,7 @@
 
 # import section
 import os, sys, getopt
-from commands import getoutput
+from subprocess import getoutput
 from ROOT import TH1F, TH2D, kTRUE, kRed
 from ctypes import *
 from itertools import count
@@ -48,8 +48,8 @@ class sf2r_manager(object):
 
         try:
             opts, args = getopt.getopt( sys.argv[1:], 'hp:d:n:', ['help', 'path=', 'debug=', 'name='])
-        except getopt.GetoptError, err:
-            print str(err)
+        except getopt.GetoptError as err:
+            print(str(err))
             self.__help()
             sys.exit( 2 )
         if len( opts ) == 0:
@@ -61,19 +61,19 @@ class sf2r_manager(object):
             elif opt in ( '-p', '--path' ):
                 self.__path = arg
                 if self.__path and os.path.exists( self.__path ):
-                    print ' --> Will search files to convert at: ', self.__path
+                    print(' --> Will search files to convert at: ', self.__path)
                 else:
-                    print ' --> There is a problem with the path! Check it please.'
+                    print(' --> There is a problem with the path! Check it please.')
                     sys.exit( 2 )
             elif opt in ( '-d', '--debug' ):
                 if arg:
-                    print ' setting DEBUG '
+                    print(' setting DEBUG ')
                     self.__debug = True
             elif opt in ( '-n', '--name' ):
                 if os.path.exists( self.__path + '/' + arg ):
                     self.__name = arg
                 else:
-                    print ' --> No such file exists! Check the name or path '
+                    print(' --> No such file exists! Check the name or path ')
                     sys.exit( 2 )
             else:
                 assert False, ' --> Invalid argument has been given! '
@@ -84,14 +84,14 @@ class sf2r_manager(object):
             olist = os.listdir( self.__path )
             self.__names = [ n for n in olist if not os.path.isdir( self.__path + '/' + n ) and n.split('.')[-1] == 'lis' and n.split('.')[0][-3:] != 'sum' ]
             if self.__debug:
-                print ' --> Will attempt to process the following files: '
+                print(' --> Will attempt to process the following files: ')
                 for name in sorted( self.__names ):
-                    print name
+                    print(name)
         else:
-            print ' --> Will process: ', self.__name
+            print(' --> Will process: ', self.__name)
 
     def ff_type_detector(self):
-        print ' --> Checking the content of the fluka files '
+        print(' --> Checking the content of the fluka files ')
         command_str_2d = 'grep \'X coordinate\' '
         command_str_3d = 'grep \'R coordinate\' '
         if 0 == len( self.__names ):
@@ -117,8 +117,8 @@ class sf2r_manager(object):
                         self.__types[ self.__path + '/' + name ] = self.__3dplot
                 else:
                     self.__types[ self.__path + '/' + name ] = self.__2dplot
-        for file in self.__types.keys():
-            print ' --> File name: ', file, ', file type: ', self.__types[ file ]
+        for file in list(self.__types.keys()):
+            print(' --> File name: ', file, ', file type: ', self.__types[ file ])
 
     def __create_parsers(self):
         pfactory = ff_parser_factory( self.__types )
@@ -155,13 +155,13 @@ class sf2r_manager(object):
 
     # it is good to have some help...
     def __help(self):
-        print ' ##################################################################################  '
-        print ' --> You need to specify the path to repository containing files produced by fluka   '
-        print '    -> use option -h or --help to print this message                                 '
-        print '    -> use option -p or --path to specify the path to fluka files                    '
-        print '    -> use option -n or --name to specify the name of file to be processed,          '
-        print '       if none is given all .lis files will be processed                             '
-        print ' ##################################################################################  '
+        print(' ##################################################################################  ')
+        print(' --> You need to specify the path to repository containing files produced by fluka   ')
+        print('    -> use option -h or --help to print this message                                 ')
+        print('    -> use option -p or --path to specify the path to fluka files                    ')
+        print('    -> use option -n or --name to specify the name of file to be processed,          ')
+        print('       if none is given all .lis files will be processed                             ')
+        print(' ##################################################################################  ')
 
 # parser factory
 class ff_parser_factory(object):
@@ -170,7 +170,7 @@ class ff_parser_factory(object):
         self.__parsers = []
 
     def ff_parser_creator(self):
-        for file_name in self.__file_types.keys():
+        for file_name in list(self.__file_types.keys()):
             f_ptr = open( file_name, 'r' )
             file_n = file_name.split('/')[-1]
             if '1DPLOT' == self.__file_types[ file_name ]:
@@ -194,7 +194,7 @@ class ff_parser_1d(object):
         self.__detect_data()
         self.__decode_header()
         self.__decode_data()
-        print ' -> Decoding/parsing: ', self.__file_name
+        print(' -> Decoding/parsing: ', self.__file_name)
 
     # now check where the data begins
     def __detect_data(self):
@@ -261,7 +261,7 @@ class ff_parser_2d(object):
         self.__detect_data()
         self.__decode_header()
         self.__decode_data()
-        print ' -> Decoding/parsing: ', self.__file_name
+        print(' -> Decoding/parsing: ', self.__file_name)
 
 # now check where the data begins
     def __detect_data(self):
@@ -339,7 +339,7 @@ class ff_parser_3d(object):
         self.__detect_data()
         self.__decode_header()
         self.__decode_data()
-        print ' -> Decoding/parsing: ', self.__file_name
+        print(' -> Decoding/parsing: ', self.__file_name)
 
 # now check where the data begins
     def __detect_data(self):
@@ -385,9 +385,9 @@ class ff_parser_3d(object):
         self.__histogram[ 'TYPE' ] = self.__ptype
         data_points = []
         error_points = []
-        for el in xrange(len(self.__data)/2):
+        for el in range(len(self.__data)/2):
             data_points.append( float( self.__data[el] ) )
-        for err in xrange(len(self.__data)/2,len(self.__data)):
+        for err in range(len(self.__data)/2,len(self.__data)):
             error_points.append( float( self.__data[err] ) )
 #SO HERE I MAKE THE SUPERPOSITION OF 2 AND 3 PART OF GRAPH
 #Commented for part 1 and 4 with !!! at the begining
@@ -398,7 +398,7 @@ class ff_parser_3d(object):
             #!!!for x in range(fine_data_indx):
                 #!!!superpos_el=(float(data_points[x]+data_points[second_part_of_fine_data+x])/2)
             centre_of_fine_data=len(data_points)-(2*fine_data_indx)
-            for x in xrange(fine_data_indx,centre_of_fine_data):
+            for x in range(fine_data_indx,centre_of_fine_data):
                 superpos_el=float(data_points[x]+data_points[centre_of_fine_data+x%fine_data_indx])/2
 		#print superpos_el
                 data_points.append(superpos_el)
@@ -443,7 +443,7 @@ class plot_1d(object):
         self.__histo = None
         self.__plot_1d()
         self.__type = '1DPLOT'
-        print ' -> Plotting/writing: ', self.__parser.get_file_name()
+        print(' -> Plotting/writing: ', self.__parser.get_file_name())
 
     def __plot_1d(self):
         global unique_cnt
@@ -480,7 +480,7 @@ class plot_2d(object):
         self.__histo = None
         self.__plot_2d()
         self.__type = '2DPLOT'
-        print ' -> Plotting/writing: ', self.__parser.get_file_name()
+        print(' -> Plotting/writing: ', self.__parser.get_file_name())
 
     def __plot_2d(self):
         global unique_cnt
@@ -551,7 +551,7 @@ class plot_3d(object):
         self.__histo = None
         self.__plot_3d()
         self.__type = '3DPLOT'
-        print ' -> Plotting/writing: ', self.__parser.get_file_name()
+        print(' -> Plotting/writing: ', self.__parser.get_file_name())
 
     def __plot_3d(self):
         global unique_cnt
@@ -622,11 +622,11 @@ class plot_3d(object):
         for indx, data_point in enumerate( hdata[ 'DATA' ] ):
             self.__histo[int(indx/nrbins)].SetBinContent( indx%nrbins +1, data_point )
             if indx%nrbins==0 and indx!=0:
-                print "Definite integral for %d graph = %.4f" %(int(indx/nrbins),definite_integral)
+                print("Definite integral for %d graph = %.4f" %(int(indx/nrbins),definite_integral))
                 definite_integral=data_point
             else:
                 definite_integral+=data_point
-        print "Definite integral for 5 graph = %.4f" %definite_integral
+        print("Definite integral for 5 graph = %.4f" %definite_integral)
             #ddebg[int(indx/100)].append(data_point)
             
         #for indx, error in enumerate( hdata[ 'ERRORS' ] ):

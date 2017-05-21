@@ -12,12 +12,12 @@
 ###-----------------------------------------------------------------
 
 #import section
-import Tkinter as tk
+import tkinter as tk
 from ROOT import TH2D, TH1F
 from matplotlib.pyplot import hist2d, hist, plot, title
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
-from sf2r_lib import plot_1d, plot_2d, plot_3d
+from .sf2r_lib import plot_1d, plot_2d, plot_3d
 
 #function for converting d1 plots - not tested - probably buggy as hell
 def plot_1d_2canvas(plot,tkroot):
@@ -34,7 +34,7 @@ def plot_1d_2canvas(plot,tkroot):
       x = [float(i)/xaxis.GetNbins()*x_max_value for i in range(0,len(values_x))]	
       subplot.plot(x, values_x,drawstyle='steps-mid')
       subplot.text(3,0.4,histo.GetName())
-      print type(figure)
+      print(type(figure))
       canvases.append(FigureCanvasTkAgg(figure,master=tkroot))
       return canvases
    else:
@@ -181,4 +181,4 @@ def plot_3d_2canvas(plot,tkroot):
 
 #program test
 if __name__ == "__main__":
- print 'test?'
+ print('test?')

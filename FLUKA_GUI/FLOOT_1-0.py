@@ -1,13 +1,13 @@
 import matplotlib
-import tkMessageBox
+import tkinter.messagebox
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
-from Tkinter import *
-import tkFileDialog
-from sf2rconverter.root2tk import plot_3d_2canvas
-from sf2rconverter.sf2r_lib import sf2r_manager
-import tkTree as tkt
+from tkinter import *
+import tkinter.filedialog
+from .sf2rconverter.root2tk import plot_3d_2canvas
+from .sf2rconverter.sf2r_lib import sf2r_manager
+from . import tkTree as tkt
 import os
 from os import *
 
@@ -124,7 +124,7 @@ class GUI(Frame):
 
     def FOLDER(self):
       self.tree.delete(0,END)
-      folder=tkFileDialog.askdirectory()
+      folder=tkinter.filedialog.askdirectory()
       if(folder!='' and isinstance(folder,str)):
        self.folder=folder
        self.tree = tkt.Tree(self.win,self.folder,"FLUKA_DIR",get_contents_callback=get_contents)
@@ -149,7 +149,7 @@ class GUI(Frame):
 	self.tree.focus_set()
    
     def HELP(self):
-	tkMessageBox.showinfo("Help info","Use your arrow keys to choose file\nENTER to confirm your choice\nYou can only convert this file to ROOT format by clicking CONVERT\nOr convert it and plot, by clicking CONVERT AND PLOT")
+	tkinter.messagebox.showinfo("Help info","Use your arrow keys to choose file\nENTER to confirm your choice\nYou can only convert this file to ROOT format by clicking CONVERT\nOr convert it and plot, by clicking CONVERT AND PLOT")
 	self.tree.focus_set()
    
 

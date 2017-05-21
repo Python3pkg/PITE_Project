@@ -16,8 +16,8 @@
 
 # import section
 import os, sys, getopt
-from commands import getoutput
-from sf2r_lib import sf2r_manager
+from subprocess import getoutput
+from .sf2r_lib import sf2r_manager
 from ROOT import TFile, gPad, TCanvas, gStyle
 
 DEBUG = False
@@ -63,15 +63,15 @@ if __name__ == '__main__':
                gPad.SetGridx();
                gPad.SetGridy();
                hist = plot.get_histo()
-               for i in xrange(len(hist)):
+               for i in range(len(hist)):
                   hist[i].Draw()
-                  raw_input('Close the window and press enter')
+                  input('Close the window and press enter')
                   hist[i].Write()
 
    file.Close()
 
-   print ' --> Press enter to finish... '
-   raw_input()
+   print(' --> Press enter to finish... ')
+   input()
 
 
 

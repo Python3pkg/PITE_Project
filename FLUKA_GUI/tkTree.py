@@ -80,9 +80,9 @@
 #           One step forward, one step back.
 
 try:
-	from Tkinter import *
-	import Tkdnd as Dnd
-	from tkFont import Font
+	from tkinter import *
+	import tkinter.dnd as Dnd
+	from tkinter.font import Font
 except ImportError:
 	from tkinter import *
 	import tkinter.dnd as Dnd
@@ -408,7 +408,7 @@ class Node:
         if len(search) == 1:
             return self
         # get list of children IDs
-        i=map(lambda x: x.id, self.child_nodes)
+        i=[x.id for x in self.child_nodes]
         # if there is a child that matches, search it
         try:
             return self.child_nodes[i.index(search[1])].PVT_find(search[1:])
@@ -672,7 +672,7 @@ class Tree(Canvas):
         self.bind('<Next>', self.pagedown)
         self.bind('<Prior>', self.pageup)
         # arrow-up/arrow-down
-        self.bind('<Down>', self.next)
+        self.bind('<Down>', self.__next__)
         self.bind('<Up>', self.prev)
         # arrow-left/arrow-right
         self.bind('<Left>', self.ascendAndClose)
@@ -843,7 +843,7 @@ class Tree(Canvas):
                 self.move_cursor(self.pos.child_nodes[0])
                 return
         # if no subnodes, move to next sibling
-        self.next()
+        next(self)
 
     def first(self, event=None):
         """Go to root node"""

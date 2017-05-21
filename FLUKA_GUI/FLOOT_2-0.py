@@ -1,14 +1,14 @@
 import ROOT
 import matplotlib
-import tkMessageBox
+import tkinter.messagebox
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
-from Tkinter import *
-import tkFileDialog
-from sf2rconverter.root2tk import plot_3d_2canvas, plot_2d_2canvas, plot_1d_2canvas
-from sf2rconverter.sf2r_lib import sf2r_manager, plot_1d, plot_2d, plot_3d
-import tkTree as tkt
+from tkinter import *
+import tkinter.filedialog
+from .sf2rconverter.root2tk import plot_3d_2canvas, plot_2d_2canvas, plot_1d_2canvas
+from .sf2rconverter.sf2r_lib import sf2r_manager, plot_1d, plot_2d, plot_3d
+from . import tkTree as tkt
 import os
 from os import *
 
@@ -84,7 +84,7 @@ class GUI(Frame):
 		histo_in_row=int(round(histo_num/columns))
 		rows=1+(histo_in_row*2)
 		row_size=600/histo_in_row
-		for r in xrange(rows):
+		for r in range(rows):
 			if r%2==0:
 				self.win.rowconfigure(r, minsize=10)
 			else:
@@ -92,25 +92,25 @@ class GUI(Frame):
 
 		self.win.columnconfigure(0,minsize=200)
 		column_size=1000/columns		
-		for c in xrange(1,columns+1):
+		for c in range(1,columns+1):
 			self.win.columnconfigure(c,minsize =column_size)
 
 		if histo_num>0 and histo_num <=9:
 			histo_ID=0
 			if histo_num%2 == 0 and histo_num<7:
-				tab=range(1,rows)
+				tab=list(range(1,rows))
 			elif (histo_num%3==1 or histo_num%3==2) and histo_num>=7:
-				tab=range(1,rows-2)
+				tab=list(range(1,rows-2))
 			elif histo_num%2 != 0 and histo_num<7:
-				tab=range(1,rows-2)
-			print "ROWS %d" %rows
+				tab=list(range(1,rows-2))
+			print("ROWS %d" %rows)
 			for r in tab[0::2]:
-				for c in xrange(1,columns+1):
+				for c in range(1,columns+1):
 					self.canvas[0][histo_ID].get_tk_widget().grid(row=r,column=c)
 					histo_ID+=1
 			histo_ID=0
 			for r in tab[1::2]:
-				for c in xrange(1,columns+1):
+				for c in range(1,columns+1):
 					self.TOOLBAR.append(NavigationToolbar2TkAgg(self.canvas[0][histo_ID],self.win))
 					self.TOOLBAR[histo_ID].grid(row=r,column=c)
 					histo_ID+=1
@@ -156,7 +156,7 @@ class GUI(Frame):
           p.append(f.Get(el.GetName()))
          plots.append(p)
         if self.canvas:
-	   for i in xrange (len(self.canvas[0])):
+	   for i in range (len(self.canvas[0])):
                self.canvas[0][i].get_tk_widget().destroy()
                self.TOOLBAR[i].destroy()  
                pass   
@@ -185,7 +185,7 @@ class GUI(Frame):
 
     def FOLDER(self):
       self.tree.delete(0,END)
-      folder=tkFileDialog.askdirectory()
+      folder=tkinter.filedialog.askdirectory()
       if(folder!='' and isinstance(folder,str)):
        self.folder=folder
        self.tree = tkt.Tree(self.win,self.folder,"FLUKA_DIR",get_contents_callback=get_contents)
@@ -213,7 +213,7 @@ class GUI(Frame):
 	self.tree.focus_set()
    
     def HELP(self):
-	tkMessageBox.showinfo("Help info","Use your arrow keys to choose file\nENTER to confirm your choice\nYou can only convert this file to ROOT format by clicking CONVERT\nOr convert it and plot, by clicking CONVERT AND PLOT")
+	tkinter.messagebox.showinfo("Help info","Use your arrow keys to choose file\nENTER to confirm your choice\nYou can only convert this file to ROOT format by clicking CONVERT\nOr convert it and plot, by clicking CONVERT AND PLOT")
 	self.tree.focus_set()
    
 

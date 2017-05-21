@@ -12,11 +12,11 @@
 
 # import section
 import os, sys, getopt, matplotlib
-import Tkinter as Tk
-from commands import getoutput
-from sf2r_lib import sf2r_manager
+import tkinter as Tk
+from subprocess import getoutput
+from .sf2r_lib import sf2r_manager
 from ROOT import TFile, gPad, TCanvas, gStyle, TH2D, TH1F
-from root2tk import plot_3d_2canvas
+from .root2tk import plot_3d_2canvas
 
 DEBUG = False
 API = True
@@ -42,5 +42,5 @@ if __name__ == '__main__':
       cnv.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
    Tk.mainloop()
-   print ' --> Press enter to finish... '
-   raw_input()
+   print(' --> Press enter to finish... ')
+   input()
